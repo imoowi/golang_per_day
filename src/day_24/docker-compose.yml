@@ -1,0 +1,10 @@
+version: "3"
+services:
+  golang_per_day_24:
+    container_name: golang_per_day_24
+    build: .
+    ports:
+      - 8080:8080
+    volumes:
+      - ./configs:/configs
+    restart: always

@@ -1,0 +1,36 @@
+# Kong 声明式配置文件版本
+# 表示该配置文件遵循 Kong 3.x 的格式规范
+_format_version: "3.0"
+
+# services 定义的是「Kong 要代理的后端服务」
+# 每一个 service，通常对应一个真实的微服务
+services:
+    # service 的唯一名称，用于：
+    # - 管理
+    # - 绑定路由
+    # - 挂载插件（限流、鉴权等）
+  - name: user-service
+
+    # 后端真实服务地址
+    # Kong 会把匹配到的请求转发到这个地址
+    # 这里是一个 Go 用户服务，监听在 8080 端口
+    url: http://192.168.1.31:8080
+
+    # routes 定义「什么样的请求会被转发到这个 service」
+    routes:
+      - name: user-route
+        # route 名称，仅用于管理和排查问题
+
+        # paths 表示路径匹配规则
+        # 当请求路径以 /api/user 开头时
+        # Kong 会将请求转发给 user-service
+        paths:
+          - /api/user
+          
+  - name: order-service
+    url: http://192.168.1.31:8081
+    routes:
+      - name: order-route
+        paths:
+          - /api/order
+# methods 表示 HTTP 方法匹配规则

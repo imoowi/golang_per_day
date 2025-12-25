@@ -1,0 +1,31 @@
+apiVersion: v1 #定义API版本
+kind: ConfigMap #定义资源类型
+metadata:
+  name: golang-per-day-30-configmap #这里填写ConfigMap名称
+  namespace: codee_jun #这里填写命名空间
+data:
+  config.yaml: |
+    server:
+      mode: "prod"
+      port: 8080
+      host: 0.0.0.0
+      readtimeout: 60
+      writetimeout: 60
+
+    log:
+      level: "info"
+    mysql:
+      dsn: root:123456@tcp(mysql.codee_jun.svc.cluster.local:3306)/golang_per_day?charset=utf8&parseTime=True&loc=Local&timeout=1000ms
+    redis:
+      addr: "redis.codee_jun.svc.cluster.local:6379"
+      password: "123456"
+      db: 0
+    jwt:
+      secret: "golang_per_day_secret_key"
+      # 24h表示24小时
+      expire: 24h
+    ratelimit:
+      # 每秒放多少个令牌
+      cap: 1000
+      # 每秒取多少个令牌
+      quantum: 1000

@@ -1,0 +1,15 @@
+syntax = "proto3";
+package goods;
+option go_package = "./proto/goods";
+service GoodsService {
+    rpc GetGoods (GetGoodsRequest) returns (GetGoodsResponse) {}
+}
+message GetGoodsRequest {
+    int64 id = 1;
+}
+message GetGoodsResponse {
+    int64 id = 1;
+    string name = 2;
+    float price = 3;
+    int64 stock = 4;
+}

@@ -1,0 +1,8 @@
+consul: 
+ host: 127.0.0.1
+ port: 8500
+redis:
+ addr: 192.168.1.31
+ port: 6379
+ password: "123456"
+ db: 2

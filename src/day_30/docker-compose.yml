@@ -1,0 +1,51 @@
+version: "3"
+networks:
+    #定义一个名为codee_jun的网络
+    codee_jun:
+      driver: bridge
+services:
+  mysql:
+    container_name: mysql
+    image: mysql:5.7
+    ports:
+        - 3306:3306
+    environment:
+        MYSQL_ROOT_PASSWORD: "123456"
+    volumes:
+        # 数据库挂载目录
+        - ./docker-data/mysql/data:/var/lib/mysql
+        # 数据库初始化脚本挂载目录
+        - ./configs/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    command: [
+        '--character-set-server=utf8mb4',
+        '--collation-server=utf8mb4_unicode_ci',
+        '--max_connections=3000'
+    ]
+    restart: always
+    networks:
+        - codee_jun
+  redis:
+    container_name: redis
+    image: redis:latest
+    command: redis-server --requirepass 123456
+    ports: 
+        - 6379:6379
+    volumes:
+        - ./docker-data/redis/db:/data
+    restart: always
+    networks:
+        - codee_jun
+  golang_per_day_30:
+    container_name: golang_per_day_30
+    build: .
+    ports:
+      - 8080:8080
+    # 依赖的服务，必须先启动依赖的服务，才能启动当前服务
+    depends_on:
+        - mysql
+        - redis
+    volumes:
+      - ./configs:/configs
+    restart: always
+    networks:
+        - codee_jun

@@ -1,0 +1,38 @@
+apiVersion: apps/v1 #定义应用部署的API版本
+kind: Deployment #定义部署应用
+metadata: #元数据部分
+  name: golang-per-day-30 #这里填写部署名称
+  namespace: codee_jun #这里填写命名空间
+spec:
+  #replicas表示期望运行的Pod副本数量
+  replicas: 1 #这里填写副本数量
+  #选择器，定义如何选择Pod
+  selector:
+    matchLabels: #选择标签，匹配具有特定标签的Pod
+      app: golang-per-day-30 #这里填写标签名称
+  #模板，定义Pod的规格
+  template:
+    metadata: #Pod的元数据
+      labels: #标签部分
+        app: golang-per-day-30 #这里填写标签名称
+    spec: #Pod的规格部分
+      containers: #定义容器
+        - name: golang-per-day-30 #这里填写容器名称
+          image: golang_per_day_30:latest #这里填写镜像名称
+          ports: #定义容器端口
+            - containerPort: 8080 #容器内部端口
+          volumeMounts: #定义卷挂载
+            - name: golang_per_day_30-configmap
+              mountPath: /configs/config.docker.yaml #容器内挂载路径
+              subPath: config.yaml #子路径
+          resources: #定义资源请求和限制
+            requests: #资源请求
+              cpu: 1000m #请求的CPU资源
+              memory: 2Gi #请求的内存资源
+            limits: #资源限制
+              cpu: 2000m #限制的CPU资源
+              memory: 4Gi #限制的内存资源
+      volumes:
+        - name: golang_per_day_30-configmap #卷名称
+          configMap: 
+            name: golang-per-day-30-configmap #引用的configmap名称

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service #定义服务
+metadata:
+  name: golang-per-day-30 #这里填写服务名称
+  namespace: codee_jun #这里填写命名空间
+spec: #服务规格
+  # externalIPs:
+  #   - 123.59.187.137
+  ports:
+    - protocol: TCP 
+      port: 80 #服务端口
+      targetPort: 80 #目标端口（容器端口）
+  sessionAffinity: ClientIP #会话亲和性设置为ClientIP
+  selector: 
+    app: golang-per-day-30  #选择标签，匹配具有特定标签的Pod

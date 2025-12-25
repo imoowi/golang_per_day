@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: golang_per_day_30-ingress
+  namespace: codee_jun
+  annotations:
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://golang_per_day_30.com"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true" # 如果需要凭证
+    nginx.ingress.kubernetes.io/proxy-body-size: "1024m"
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "golang_per_day_30-session"
+    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
+spec:
+  rules:
+    - host: golang_per_day_30.com # 域名
+      http: # 协议
+        paths: # 路径
+          - path: / # 路径
+            pathType: Prefix   # 路径类型
+            backend: # 后端
+              service: # 服务
+                name: golang-per-day-30 # 服务名称
+                port: # 服务端口
+                  number: 8080 # 服务端口号

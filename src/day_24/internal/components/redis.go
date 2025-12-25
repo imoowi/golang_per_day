@@ -1,0 +1,32 @@
+package components
+
+import (
+	"github.com/redis/go-redis/v9"
+	"github.com/spf13/cast"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
+)
+
+var Redis *redis.Client
+
+func InitRedis() {
+	addr := viper.GetString("redis.addr")
+	if addr == "" {
+		panic("请在配置文件里配置【redis.addr")
+	}
+	pass := viper.GetString("redis.password")
+	if pass == "" {
+		panic("请在配置文件里配置【redis.password")
+	}
+	db := viper.GetString("redis.db")
+	if db == "" {
+		panic("请在配置文件里配置【redis.db")
+	}
+	Redis = redis.NewClient(&redis.Options{
+		Addr:     addr,
+		Password: pass,
+		DB:       cast.ToInt(db),
+		PoolSize: 10,
+	})
+	zap.L().Info("Redis连接地址:", zap.String("addr", addr))
+}

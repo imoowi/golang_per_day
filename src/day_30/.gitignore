@@ -1,0 +1,48 @@
+# Go build outputs
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Binaries
+/bin/
+/build/
+/dist/
+
+# Dependency directories
+/vendor/
+/pkg/mod/
+
+# Go workspace
+# Ignore coverage output
+coverage.out
+
+# IDEs and editors
+# .vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment / secret files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+
+# Docker
+docker-compose.override.yml
+
+# Node (if present)
+node_modules/
+
+# Misc
+*.swp
+*.swo
+__pycache__/
+tmp

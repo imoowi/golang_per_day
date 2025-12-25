@@ -1,0 +1,58 @@
+networks:
+    codee_jun:
+        driver: bridge
+      # external: true
+services:
+    consul:
+        container_name: consul
+        image: consul:1.15.4
+        ports:
+            - 8500:8500
+        restart: always
+        networks:
+            - codee_jun
+    kong:
+        container_name: kong
+        image: kong:ubuntu
+        ports:
+            - 8000:8000
+            - 8001:8001
+        environment:
+          KONG_DATABASE: "off"
+          KONG_DECLARATIVE_CONFIG: /kong/kong.yml
+          KONG_PROXY_ACCESS_LOG: /dev/stdout
+          KONG_ADMIN_ACCESS_LOG: /dev/stdout
+          KONG_PROXY_ERROR_LOG: /dev/stderr
+          KONG_ADMIN_ERROR_LOG: /dev/stderr
+          KONG_ADMIN_LISTEN: 0.0.0.0:8001
+        depends_on:
+            - consul
+        volumes:
+            - ./kong/kong.yml:/kong/kong.yml
+        restart: always
+        networks:
+            - codee_jun
+    user-server:
+        container_name: user-server
+        build:
+            context: ./user-server
+            dockerfile: Dockerfile
+        ports:
+            - 8080:8080
+        depends_on:
+            - consul
+        restart: always
+        networks:
+            - codee_jun
+    order-server:
+        container_name: order-server
+        build:
+            context: ./order-server
+            dockerfile: Dockerfile
+        ports:
+            - 8081:8081
+        depends_on:
+            - consul
+        restart: always
+        networks:
+            - codee_jun
