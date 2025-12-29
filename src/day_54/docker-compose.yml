@@ -1,0 +1,29 @@
+# 定义 Docker 服务
+version: '3.8'
+services:
+  # Jaeger 分布式追踪服务
+  jaeger:
+    # 使用 Jaeger all-in-one 镜像，包含完整的追踪功能
+    image: jaegertracing/all-in-one:1.52
+    # 容器名称
+    container_name: jaeger
+    # 端口映射
+    ports:
+      - "16686:16686"   # Jaeger UI 端口
+      - "4318:4318"     # OTLP HTTP 协议端口
+      - "4317:4317"     # OTLP gRPC 协议端口
+    # 环境变量配置
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true  # 启用 OTLP 收集器
+  
+  # Go 应用程序服务
+  app:
+    build: ./
+    # 容器名称
+    container_name: gin-app
+    # 端口映射，将容器的 8080 端口映射到主机的 8080 端口
+    ports:
+      - "8080:8080"
+    # 依赖关系，确保 jaeger 服务先启动
+    depends_on:
+      - jaeger
