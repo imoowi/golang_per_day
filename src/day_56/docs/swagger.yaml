@@ -1,0 +1,220 @@
+definitions:
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  models.Goods:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+      stock:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  response.PageListT-models_Goods:
+    properties:
+      data:
+        description: 返回数据
+        items:
+          $ref: '#/definitions/models.Goods'
+        type: array
+      pages:
+        allOf:
+        - $ref: '#/definitions/response.Pages'
+        description: 分页数据
+    type: object
+  response.Pages:
+    properties:
+      count:
+        description: 总数
+        type: integer
+      page:
+        description: 当前页码
+        type: integer
+      pageSize:
+        description: 分页数
+        type: integer
+      totalPage:
+        description: 总页数
+        type: integer
+    type: object
+info:
+  contact: {}
+  description: This is a demo server.
+  title: GolangPerDay24 API
+  version: "1.0"
+paths:
+  /api/v1/goods:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 搜索关键字
+        in: query
+        name: key
+        type: string
+      - description: 页码,默认为1
+        in: query
+        name: page
+        type: integer
+      - description: 页数,默认为20，最小为1，最大不超过1000
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/response.PageListT-models_Goods'
+        "400":
+          description: 请求错误
+        "401":
+          description: token验证失败
+        "500":
+          description: 内部错误
+      summary: 分页列表(pagelist)
+      tags:
+      - goods
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: body
+        in: body
+        name: '{object}'
+        required: true
+        schema:
+          $ref: '#/definitions/models.Goods'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: 请求错误
+        "401":
+          description: token验证失败
+        "500":
+          description: 内部错误
+      summary: 新增(add)
+      tags:
+      - goods
+  /api/v1/goods/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: 请求错误
+        "401":
+          description: token验证失败
+        "500":
+          description: 内部错误
+      summary: 删除(delete)
+      tags:
+      - goods
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/models.Goods'
+        "400":
+          description: 请求错误
+        "401":
+          description: token验证失败
+        "500":
+          description: 内部错误
+      summary: 详情(one)
+      tags:
+      - goods
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: body
+        in: body
+        name: '{object}'
+        required: true
+        schema:
+          $ref: '#/definitions/models.Goods'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: 请求错误
+        "401":
+          description: token验证失败
+        "500":
+          description: 内部错误
+      summary: 更新(update)
+      tags:
+      - goods
+swagger: "2.0"
