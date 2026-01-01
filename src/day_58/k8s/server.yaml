@@ -1,0 +1,39 @@
+---
+# 无头服务，用于集群内部发现
+apiVersion: v1
+# 资源类型为 Service
+kind: Service
+metadata:
+  # Service 名称
+  name: nats-headless
+spec:
+  # 设置为 None，表示这是一个 Headless Service
+  clusterIP: None
+  # 选择器，匹配标签为 app: nats 的 Pod
+  selector:
+    app: nats
+  # 端口配置
+  ports:
+  # 集群通信端口
+  - name: cluster
+    port: 6222
+---
+# 客户端访问服务
+apiVersion: v1
+# 资源类型为 Service
+kind: Service
+metadata:
+  # Service 名称
+  name: nats-client
+spec:
+  # 选择器，匹配标签为 app: nats 的 Pod
+  selector:
+    app: nats
+  # 端口配置
+  ports:
+  # 客户端连接端口
+  - name: client
+    port: 4222
+  # HTTP 监控端口
+  - name: monitor
+    port: 8222

@@ -1,0 +1,73 @@
+# API 版本，使用 apps/v1
+apiVersion: apps/v1
+# 资源类型为 StatefulSet，用于管理有状态应用
+kind: StatefulSet
+metadata:
+  # StatefulSet 的名称
+  name: nats
+spec:
+  # 关联的 Headless Service 名称
+  serviceName: "nats-headless"
+  # 副本数量，部署 3 个 NATS 节点
+  replicas: 3
+  # 选择器，用于匹配 Pod
+  selector:
+    matchLabels:
+      # 匹配标签为 app: nats 的 Pod
+      app: nats
+  # Pod 模板定义
+  template:
+    metadata:
+      # Pod 的标签
+      labels:
+        app: nats
+    spec:
+      # 容器配置
+      containers:
+      # NATS 容器
+      - name: nats
+        # 使用阿里云 NATS 2.10 Alpine 版本镜像
+        image: registry.cn-hangzhou.aliyuncs.com/natsio/nats:2.10-alpine
+        # 启动参数，指定配置文件路径
+        args: ["-c", "/etc/nats-config/nats.conf"]
+        # 容器端口配置
+        ports:
+        # 客户端连接端口
+        - containerPort: 4222
+          name: client
+        # 集群通信端口
+        - containerPort: 6222
+          name: cluster
+        # HTTP 监控端口
+        - containerPort: 8222
+          name: monitor
+        # 卷挂载配置
+        volumeMounts:
+        # 挂载 ConfigMap 配置
+        - name: config
+          mountPath: /etc/nats-config
+        # 挂载数据持久化卷
+        - name: nats-data
+          mountPath: /data/jetstream
+      # 卷配置
+      volumes:
+      # ConfigMap 卷
+      - name: config
+        configMap:
+          name: nats-config
+  # 自动为每个副本创建 10Gi 的磁盘存储
+  volumeClaimTemplates:
+  # 数据卷声明模板
+  - metadata:
+      # 数据卷名称
+      name: nats-data
+    spec:
+      # 指定使用的 StorageClass
+      storageClassName: nats-storage
+      # 访问模式，单节点读写
+      accessModes: [ "ReadWriteOnce" ]
+      # 资源请求
+      resources:
+        requests:
+          # 存储空间请求 10Gi
+          storage: 10Gi

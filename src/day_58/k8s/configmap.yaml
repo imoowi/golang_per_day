@@ -1,0 +1,39 @@
+# API 版本，使用 v1
+apiVersion: v1
+# 资源类型为 ConfigMap，用于存储配置数据
+kind: ConfigMap
+metadata:
+  # ConfigMap 的名称
+  name: nats-config
+data:
+  # 配置文件名称为 nats.conf
+  nats.conf: |
+    # 监听客户端连接
+    port: 4222
+    # HTTP 监控端口
+    monitor_port: 8222
+    
+    # 集群配置
+    cluster {
+      # 集群内部通信端口
+      port: 6222
+      # 使用 K8s Headless Service 的 DNS 名称进行自动发现
+      routes [
+        # 连接到第一个 NATS 节点
+        "nats://nats-0.nats-headless.default.svc.cluster.local:6222"
+        # 连接到第二个 NATS 节点
+        "nats://nats-1.nats-headless.default.svc.cluster.local:6222"
+        # 连接到第三个 NATS 节点
+        "nats://nats-2.nats-headless.default.svc.cluster.local:6222"
+      ]
+    }
+    
+    # 开启 JetStream 持久化
+    jetstream {
+      # JetStream 数据存储目录
+      store_dir: "/data/jetstream"
+      # 最大内存使用量
+      max_mem: 1G
+      # 最大文件存储量
+      max_file: 10G
+    }

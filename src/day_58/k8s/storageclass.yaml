@@ -1,0 +1,13 @@
+# API 版本，使用 storage.k8s.io/v1
+apiVersion: storage.k8s.io/v1
+# 资源类型为 StorageClass，用于定义存储类
+kind: StorageClass
+metadata:
+  # StorageClass 的名称
+  name: nats-storage
+# 存储供应者的类型，local 表示使用本地存储
+provisioner: kubernetes.io/no-provisioner
+# 回收策略，Retain 表示删除 PVC 后保留数据
+reclaimPolicy: Retain
+# 绑定模式，WaitForFirstConsumer 表示延迟绑定，直到 Pod 调度到节点上才绑定 PV
+volumeBindingMode: WaitForFirstConsumer

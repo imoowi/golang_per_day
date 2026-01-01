@@ -1,0 +1,61 @@
+# 定义 Docker Compose 的服务列表
+services:
+  # 第一个 NATS 服务实例
+  nats-1:
+    # 使用 NATS 2.10 版本的官方镜像
+    image: nats:2.10
+    # 容器名称设置为 nats-1
+    container_name: nats-1
+    # 启动命令，指定使用配置文件 /etc/nats/nats.conf
+    command: ["-c", "/etc/nats/nats.conf"]
+    # 挂载配置文件和数据卷
+    volumes:
+      # 将本地配置文件挂载到容器内的配置路径
+      - ./nats-1.conf:/etc/nats/nats.conf
+      # 挂载数据卷用于持久化存储
+      - nats1-data:/data
+    # 端口映射配置
+    ports:
+      # 映射 NATS 客户端连接端口
+      - "4222:4222"
+      # 映射 HTTP 监控端口
+      - "8222:8222"
+
+  # 第二个 NATS 服务实例
+  nats-2:
+    # 使用 NATS 2.10 版本的官方镜像
+    image: nats:2.10
+    # 容器名称设置为 nats-2
+    container_name: nats-2
+    # 启动命令，指定使用配置文件 /etc/nats/nats.conf
+    command: ["-c", "/etc/nats/nats.conf"]
+    # 挂载配置文件和数据卷
+    volumes:
+      # 将本地配置文件挂载到容器内的配置路径
+      - ./nats-2.conf:/etc/nats/nats.conf
+      # 挂载数据卷用于持久化存储
+      - nats2-data:/data"
+
+  # 第三个 NATS 服务实例
+  nats-3:
+    # 使用 NATS 2.10 版本的官方镜像
+    image: nats:2.10
+    # 容器名称设置为 nats-3
+    container_name: nats-3
+    # 启动命令，指定使用配置文件 /etc/nats/nats.conf
+    command: ["-c", "/etc/nats/nats.conf"]
+    # 挂载配置文件和数据卷
+    volumes:
+      # 将本地配置文件挂载到容器内的配置路径
+      - ./nats-3.conf:/etc/nats/nats.conf
+      # 挂载数据卷用于持久化存储
+      - nats3-data:/data"
+
+# 定义数据卷，用于持久化存储数据
+volumes:
+  # 第一个 NATS 实例的数据卷
+  nats1-data:
+  # 第二个 NATS 实例的数据卷
+  nats2-data:
+  # 第三个 NATS 实例的数据卷
+  nats3-data:

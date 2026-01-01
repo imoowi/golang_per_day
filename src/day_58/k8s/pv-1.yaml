@@ -1,0 +1,22 @@
+# API 版本，使用 v1
+apiVersion: v1
+# 资源类型为 PersistentVolume，用于定义持久化存储卷
+kind: PersistentVolume
+metadata:
+  # PV 的名称
+  name: nats-pv-1
+spec:
+  # 存储容量为 10Gi
+  capacity:
+    storage: 10Gi
+  # 访问模式，单节点读写
+  accessModes:
+    - ReadWriteOnce
+  # 持久化卷回收策略，删除 PVC 后保留数据
+  persistentVolumeReclaimPolicy: Retain
+  # 指定使用的 StorageClass
+  storageClassName: nats-storage
+  # 使用 hostPath 存储类型，使用节点本地路径
+  hostPath:
+    # 节点上的本地路径
+    path: /data/nats-1
