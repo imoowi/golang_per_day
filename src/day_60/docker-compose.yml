@@ -1,0 +1,73 @@
+# 定义网络配置
+networks:
+  codee_jun:
+    driver: bridge
+
+# 定义服务配置
+services:
+  # day60 服务配置 - Go 应用程序
+  day60:
+    # 指定使用的镜像
+    image: imoowi/golang_per_day:day60
+    # 设置容器名称
+    container_name: day60
+    # 端口映射：将宿主机的 8080 端口映射到容器的 8080 端口
+    ports:
+      - 8080:8080
+    # 定义服务依赖关系，确保 MySQL 和 Redis 服务先启动
+    depends_on:
+      - mysql
+      - redis
+    # 设置重启策略：容器退出时总是自动重启
+    restart: always
+    # 指定使用的网络
+    networks:
+      - codee_jun
+  
+  # MySQL 服务配置 - 数据库服务
+  mysql:
+    # 设置容器名称
+    container_name: mysql
+    # 指定使用的 MySQL 镜像版本
+    image: mysql:5.7
+    # 端口映射：将宿主机的 3306 端口映射到容器的 3306 端口
+    ports:
+      - 3306:3306
+    # 设置环境变量：MySQL root 用户密码
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456"
+    # 数据卷挂载：将宿主机的 ./mysql/data 目录挂载到容器的 /var/lib/mysql 目录，实现数据持久化
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+    # 自定义 MySQL 启动命令
+    command:
+      [
+        "--character-set-server=utf8mb4",
+        "--collation-server=utf8mb4_unicode_ci",
+        "--max_connections=3000",
+      ]
+    # 设置重启策略：容器退出时总是自动重启
+    restart: always
+    # 指定使用的网络
+    networks:
+      - codee_jun
+  
+  # Redis 服务配置 - 缓存服务
+  redis:
+    # 设置容器名称
+    container_name: redis
+    # 指定使用的 Redis 镜像版本
+    image: redis:latest
+    # 自定义 Redis 启动命令：设置密码为 123456
+    command: redis-server --requirepass 123456
+    # 端口映射：将宿主机的 6379 端口映射到容器的 6379 端口
+    ports:
+      - 6379:6379
+    # 数据卷挂载：将宿主机的 ./redis/db 目录挂载到容器的 /data 目录，实现数据持久化
+    volumes:
+      - ./redis/db:/data
+    # 设置重启策略：容器退出时总是自动重启
+    restart: always
+    # 指定使用的网络
+    networks:
+      - codee_jun
