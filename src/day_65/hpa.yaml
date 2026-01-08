@@ -1,0 +1,25 @@
+apiVersion: autoscaling/v2 #定义API版本
+kind: HorizontalPodAutoscaler #定义水平Pod自动扩缩容器
+metadata: #元数据
+  name: golang-per-day-65-hpa #这里填写HPA名称
+  namespace: codee_jun #这里填写命名空间
+spec: #HPA规格
+  scaleTargetRef:
+    apiVersion: apps/v1 #定义API版本
+    kind: Deployment #定义资源类型
+    name: golang-per-day-65 #这里填写Deployment名称
+  minReplicas: 3 #最小副本数
+  maxReplicas: 10 #最大副本数
+  metrics:  #指标集合
+    - type: Resource #资源指标类型
+      resource: #资源指标
+        name: cpu #资源名称
+        target:  #资源目标值
+          type: Utilization #CPU利用率目标
+          averageUtilization: 80 #CPU利用率目标值
+    - type: Resource
+      resource:
+        name: memory #内存资源名称
+        target:
+          type: Utilization #内存利用率目标
+          averageUtilization: 80 #内存利用率目标值

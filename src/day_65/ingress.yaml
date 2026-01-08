@@ -1,0 +1,48 @@
+# golang_per_day_65 项目的 Ingress 配置
+# 用于管理外部访问集群内服务的路由规则
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+# Ingress 元数据配置
+metadata:
+  name: golang_per_day_65-ingress     # Ingress 资源名称
+  namespace: codee_jun                # 所属命名空间
+  annotations:                        # Nginx Ingress 控制器特定配置
+    # CORS 配置
+    nginx.ingress.kubernetes.io/enable-cors: "true"                     # 启用跨域资源共享
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://golang_per_day_65.com"  # 允许的源
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"  # 允许的HTTP方法
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"  # 允许的请求头
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true" # 如果需要凭证
+    
+    # 代理配置
+    nginx.ingress.kubernetes.io/proxy-body-size: "1024m"             # 允许的请求体大小
+    
+    # 会话亲和性配置
+    nginx.ingress.kubernetes.io/affinity: "cookie"                    # 启用基于cookie的会话亲和性
+    nginx.ingress.kubernetes.io/session-cookie-name: "golang_per_day_65-session"  # 会话cookie名称
+    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"      # cookie过期时间（秒）
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"      # cookie最大生存时间（秒）
+
+# Ingress 规格配置
+spec:
+  ingressClassName: nginx              # 使用的Ingress控制器类名
+  
+  # TLS 配置（HTTPS）
+  tls:
+    - hosts:
+        - golang_per_day_65.com # 域名
+      secretName: codee-jun-tls-secret # tls证书
+  
+  # 路由规则
+  rules:
+    - host: golang_per_day_65.com # 域名
+      http: # 协议
+        paths: # 路径
+          - path: / # 路径
+            pathType: Prefix   # 路径类型
+            backend: # 后端
+              service: # 服务
+                name: golang-per-day-65 # 服务名称
+                port: # 服务端口
+                  number: 8080 # 服务端口号
