@@ -1,0 +1,15 @@
+# 服务(Service) - 用于暴露应用程序并提供负载均衡
+apiVersion: v1 # Kubernetes API版本
+kind: Service # 资源类型：Service用于暴露应用程序
+metadata:
+  name: golang-per-day-65 # 服务名称
+  namespace: codee-jun # Kubernetes命名空间
+spec: # 服务规格
+  ports: # 端口配置列表
+    - protocol: TCP # 协议类型：TCP
+      port: 8080 # 服务端口（集群内部访问端口）
+      targetPort: 8080 # 目标端口（Pod内部端口）
+  sessionAffinity: ClientIP # 会话亲和性：ClientIP表示同一客户端的请求会转发到同一Pod，为了保持session一致性
+  selector: # Pod选择器
+    app: golang-per-day-65 # 匹配具有app=golang-per-day-65标签的Pod
+    version: v1 # 匹配具有version=v1标签的Pod
