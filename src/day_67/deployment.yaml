@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: golang-per-day-67-deployment
+  labels:
+    app: golang-per-day-67
+spec:
+  replicas: 3 # 部署3个副本
+  selector:
+    matchLabels:
+      app: golang-per-day-67
+  template:
+    metadata:
+      labels:
+        app: golang-per-day-67
+    spec:
+      containers:
+      - name: gin-server
+        image: golang-per-day:day67
+        ports:
+        - containerPort: 8080
+        
+        # --- 1. 启动探针 (Startup Probe) ---
+        # 作用：保护期。如果它没成功，K8s 不会杀掉容器，也不会启动 Liveness 和 Readiness。
+        startupProbe:
+          httpGet:
+            path: /health/startup
+            port: 8080
+          # 30 * 5 = 150s。如果 150 秒还没启动成功，K8s 才会重启容器。
+          failureThreshold: 30
+          periodSeconds: 5
+
+        # --- 2. 存活探针 (Liveness Probe) ---
+        # 作用：判断容器是否“没气了”（如死锁）。失败则重启容器。
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 8080
+          initialDelaySeconds: 5  # startup 成功后，等待 5s 开始检查
+          periodSeconds: 15       # 每 15s 检查一次
+          timeoutSeconds: 3       # 响应超时时间
+          failureThreshold: 3     # 连续 3 次失败才重启
+
+        # --- 3. 就绪探针 (Readiness Probe) ---
+        # 作用：判断容器是否“能接活”（如数据库已连上）。失败则切断流量（Service 摘除）。
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8080
+          initialDelaySeconds: 2
+          periodSeconds: 5        # 检查频率可以高点，为了快速发现故障
+          successThreshold: 1     # 只要 1 次成功就认为就绪
+          failureThreshold: 2     # 连续 2 次失败就踢出负载均衡
