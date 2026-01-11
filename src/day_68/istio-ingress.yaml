@@ -1,0 +1,15 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: golang-per-day-68-gateway
+  namespace: codee-jun
+spec:
+  selector:
+    istio: ingressgateway # 使用 Istio 默认的网关控制器
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*" # 或者填写你的具体域名，如 myapp.example.com

@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: golang-per-day-68-route
+  namespace: codee-jun
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - golang-per-day-68-gateway # 绑定上面定义的网关
+  http:
+  - match:
+    - uri:
+        prefix: / # 匹配路径，这里是匹配所有
+    route:
+    - destination:
+        host: golang-per-day-68 # 你的 K8s Service 名称
+        port:
+          number: 8080 # Service 暴露的端口
