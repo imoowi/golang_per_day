@@ -1,0 +1,61 @@
+# 服务(Service) - 用于暴露应用程序并提供负载均衡
+apiVersion: v1 # Kubernetes API版本
+kind: Service # 资源类型：Service用于暴露应用程序
+metadata:
+  name: golang-per-day-70 # 服务名称
+  namespace: codee-jun # Kubernetes命名空间
+spec: # 服务规格
+  ports: # 端口配置列表
+    - protocol: TCP # 协议类型：TCP
+      port: 8080 # 服务端口（集群内部访问端口）
+      targetPort: 8080 # 目标端口（Pod内部端口）
+  sessionAffinity: ClientIP # 会话亲和性：ClientIP表示同一客户端的请求会转发到同一Pod，为了保持session一致性
+  selector: # Pod选择器
+    app: golang-per-day-70 # 匹配具有app=golang-per-day-70标签的Pod
+---
+
+# 部署(Deployment) - 用于管理应用程序的Pod副本
+apiVersion: apps/v1 # Kubernetes应用部署的API版本
+kind: Deployment # 资源类型：Deployment用于管理无状态应用的部署
+metadata: # 元数据部分
+  name: golang-per-day-70 # 部署名称
+  namespace: codee-jun # Kubernetes命名空间
+spec: # 部署规格
+  # 副本数量：期望运行的Pod数量
+  replicas: 3 # 运行3个Pod副本，提供高可用性
+  strategy: # 策略：滚动更新策略
+    type: RollingUpdate # 策略类型：滚动更新
+    rollingUpdate: # 滚动更新配置
+      maxSurge: 1 # 最大激增数：允许同时运行的最大Pod数量超过期望副本数
+      maxUnavailable: 1 # 最大不可用数：允许同时运行的最大Pod数量低于期望副本数
+  # 选择器：用于选择管理哪些Pod
+  selector:
+    matchLabels: # 匹配标签：选择具有特定标签的Pod
+      app: golang-per-day-70 # 标签名称，用于标识应用
+  # Pod模板：定义Pod的规格
+  template:
+    metadata: # Pod的元数据
+      labels: # Pod标签：用于标识和选择Pod
+        app: golang-per-day-70 # 应用标签名称
+    spec: # Pod的规格部分
+      containers: # 容器定义列表
+        - name: golang-per-day-70 # 容器名称
+          image: imoowi/golang_per_day:day60 # 容器镜像：仓库/镜像名:标签
+          ports: # 容器端口配置
+            - containerPort: 8080 # 容器内部监听端口
+          volumeMounts: #定义卷挂载
+            - name: golang-per-day-70-configmap
+              mountPath: /configs/setting.yaml #容器内挂载路径
+              subPath: setting.yaml #子路径
+          # 资源配置：定义容器的资源请求和限制
+          resources: # 资源配置
+            requests: # 资源请求：调度Pod时需要的最小资源
+              cpu: 1000m # CPU请求：1000m = 1核
+              memory: 2Gi # 内存请求：2GB
+            limits: # 资源限制：容器允许使用的最大资源
+              cpu: 2000m # CPU限制：2000m = 2核
+              memory: 4Gi # 内存限制：4GB
+      volumes:
+        - name: golang-per-day-70-configmap #卷名称
+          configMap: 
+            name: golang-per-day-70-configmap #引用的configmap名称

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-metrics-demo
+  namespace: codee-jun
+  labels:
+    app: go-metrics-demo  # ✅ 给 Service 打 label（必须）
+spec:
+  selector:
+    app: go-metrics-demo
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080

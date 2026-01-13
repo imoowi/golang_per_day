@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-metrics-demo
+  namespace: codee-jun
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: go-metrics-demo
+  template:
+    metadata:
+      labels:
+        app: go-metrics-demo
+    spec:
+      containers:
+      - name: app
+        image: imoowi/golang_per_day:day71
+        ports:
+        - containerPort: 8080

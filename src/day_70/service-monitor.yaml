@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: go-metrics-demo
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+    - codee-jun
+  selector:
+    matchLabels:
+      app: go-metrics-demo
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
