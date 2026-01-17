@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: gin-app-monitor
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+    - codee-jun
+  selector:
+    matchLabels:
+      app: gin-app
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s

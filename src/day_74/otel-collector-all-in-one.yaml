@@ -1,0 +1,95 @@
+---
+# 1. 命名空间（假设你使用的是 monitoring，如不存在请创建）
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: monitoring
+
+---
+# 2. RBAC 权限（允许 Collector 获取集群元数据）
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: otel-collector
+  namespace: monitoring
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: otel-collector-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "namespaces", "nodes"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: otel-collector-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: otel-collector-role
+subjects:
+- kind: ServiceAccount
+  name: otel-collector
+  namespace: monitoring
+
+---
+# 3. Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+  namespace: monitoring
+  labels:
+    app: otel-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel-collector
+  template:
+    metadata:
+      labels:
+        app: otel-collector
+    spec:
+      serviceAccountName: otel-collector
+      containers:
+      - name: otel-collector
+        image: otel/opentelemetry-collector-contrib:0.90.0 # 使用 contrib 版本，功能更全
+        args: ["--config=/etc/otel-collector-config.yaml"]
+        ports:
+        - containerPort: 4317 # OTLP gRPC
+        - containerPort: 4318 # OTLP HTTP
+        - containerPort: 8889 # Prometheus Exporter
+        volumeMounts:
+        - name: otel-collector-config-vol
+          mountPath: /etc/otel-collector-config.yaml
+          subPath: otel-collector-config.yaml
+      volumes:
+      - name: otel-collector-config-vol
+        configMap:
+          name: otel-collector-conf # 引用上一个回答中创建的 ConfigMap
+
+---
+# 4. Service (供 Gin 应用连接)
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+  namespace: monitoring
+spec:
+  type: ClusterIP
+  ports:
+  - name: otlp-grpc
+    port: 4317
+    targetPort: 4317
+  - name: otlp-http
+    port: 4318
+    targetPort: 4318
+  - name: metrics
+    port: 8889
+    targetPort: 8889
+  selector:
+    app: otel-collector

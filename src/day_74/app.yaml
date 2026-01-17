@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gin-app
+  namespace: codee-jun
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gin-app
+  template:
+    metadata:
+      labels:
+        app: gin-app
+    spec:
+      containers:
+      - name: gin-app
+        image: imoowi/golang_per_day:day74
+        imagePullPolicy: IfNotPresent # 优先使用本地 load 进去的镜像
+        ports:
+        - containerPort: 8080
+        env:
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "otel-collector.monitoring.svc.cluster.local:4317"
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: gin-app
+  namespace: codee-jun
+  labels:
+    app: gin-app  # ✅ 给 Service 打 label（必须）
+spec:
+  selector:
+    app: gin-app
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
