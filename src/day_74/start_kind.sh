@@ -12,5 +12,10 @@ kubectl get pods -n monitoring
 kubectl create namespace codee-jun
 
 helm repo add jaegertracing https://jaegertracing.github.io/helm-charts
-helm install jaeger jaegertracing/jaeger
+helm install jaeger jaegertracing/jaeger --namespace monitoring
+
+kubectl apply -f https://raw.githubusercontent.com/jaegertracing/jaeger-operator/main/deploy/crds/jaegertracing.io_jaegers_crd.yaml
+# 这里直接用一个简单的 deployment 运行 jaeger
+kubectl run jaeger --image=jaegertracing/all-in-one:latest -n monitoring --expose --port=16686
+kubectl expose pod jaeger -n monitoring --type=ClusterIP --port=4317 --target-port=4317 --name=jaeger-collector
 
