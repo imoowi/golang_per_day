@@ -1,0 +1,8 @@
+gateway:
+  type: NodePort
+  externalTrafficPolicy: Local
+  http:
+    enabled: true
+    servicePort: 80
+    containerPort: 9080
+    nodePort: 30080  # 关键：绑定到 30080

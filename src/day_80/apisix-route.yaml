@@ -1,0 +1,16 @@
+# APISIX 路由配置
+# 定义从 APISIX API 网关到后端服务的路由规则
+apiVersion: apisix.apache.org/v2
+kind: ApisixRoute
+metadata:
+  name: user-route  # 路由名称
+  namespace: default  # 命名空间
+spec:
+  http:
+  - name: user  # HTTP 路由名称
+    match:
+      paths:
+      - /user/*  # 匹配路径，* 表示通配符
+    backends:
+    - serviceName: user-service  # 后端服务名称
+      servicePort: 8080  # 后端服务端口
