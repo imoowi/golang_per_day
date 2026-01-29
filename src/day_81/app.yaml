@@ -1,0 +1,46 @@
+# Kubernetes Deployment 配置
+# 定义 user-service 应用的部署
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service  # 部署名称
+  # namespace: ingress-apisix   # 命名空间
+spec:
+  replicas: 1          # 副本数
+  selector:
+    matchLabels:
+      app: user        # 标签选择器，匹配 app=user 的 Pod
+  template:
+    metadata:
+      labels:
+        app: user      # Pod 标签
+      annotations:
+        linkerd.io/inject: enabled  # 启用 Linkerd 服务网格注入
+    spec:
+      containers:
+      - name: app      # 容器名称
+        image: imoowi/golang_per_day:day813 # 容器镜像
+        imagePullPolicy: IfNotPresent  # 镜像拉取策略
+        ports:
+        - containerPort: 8000  # 容器暴露的端口
+        volumeMounts:
+        - name: user-service-configmap
+          mountPath: /configs
+      volumes:
+        - name: user-service-configmap
+          configMap:
+            name: user-service-configmap
+---
+# Kubernetes Service 配置
+# 为 user-service 提供网络访问
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service  # Service 名称
+  # namespace: apisix   # 命名空间
+spec:
+  selector:
+    app: user        # 标签选择器，匹配 app=user 的 Pod
+  ports:
+  - port: 8000        # Service 暴露的端口
+    targetPort: 8000  # 目标 Pod 端口

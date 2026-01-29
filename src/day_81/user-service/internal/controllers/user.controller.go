@@ -1,0 +1,90 @@
+package controllers
+
+import (
+	"net/http"
+
+	"user-service/internal/models"
+	"user-service/internal/services"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/imoowi/comer/interfaces"
+	"github.com/imoowi/comer/utils/response"
+	"github.com/spf13/cast"
+)
+
+func UserPageList(c *gin.Context) {
+	var filter interfaces.IFilter = &models.UserFilter{}
+	err := c.ShouldBindQuery(&filter)
+	if err != nil {
+		response.Error(c, err.Error(), http.StatusBadRequest)
+		return
+	}
+	res, err := services.User.PageList(c, &filter)
+	if err != nil {
+		response.Error(c, err.Error(), http.StatusBadRequest)
+		return
+	}
+	response.OK(c, res)
+}
+
+func UserOne(c *gin.Context) {
+	id := c.DefaultQuery(`id`, `0`)
+
+	res, err := services.User.One(c, cast.ToUint(id))
+	if err != nil {
+		response.Error(c, err.Error(), http.StatusBadRequest)
+		return
+	}
+	response.OK(c, res)
+}
+func UserAdd(c *gin.Context) {
+	var model models.UserAdd
+	err := c.ShouldBindBodyWith(&model, binding.JSON)
+	if err != nil {
+		response.Error(c, err.Error(), http.StatusBadRequest)
+		return
+	}
+	res, err := services.User.Add(c, &model)
+	if err != nil {
+		response.Error(c, err.Error(), http.StatusBadRequest)
+		return
+	}
+	response.OK(c, res)
+}
+
+func UserUpdate(c *gin.Context) {
+	id := c.Param(`id`)
+	if id == `` {
+		response.Error(c, `pls input id`, http.StatusBadRequest)
+		return
+	}
+	model := make(map[string]any)
+	err := c.ShouldBindBodyWith(&model, binding.JSON)
+	if err != nil {
+		response.Error(c, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	res, err := services.User.Update(c, model, cast.ToUint(id))
+	if err != nil {
+		response.Error(c, err.Error(), http.StatusBadRequest)
+		return
+	}
+	response.OK(c, res)
+}
+
+func UserDelete(c *gin.Context) {
+	id := c.Param(`id`)
+	if id == `` {
+		response.Error(c, `pls input id`, http.StatusBadRequest)
+		return
+	}
+
+	res, err := services.User.Delete(c, cast.ToUint(id))
+	if err != nil {
+		response.Error(c, err.Error(), http.StatusBadRequest)
+		return
+	}
+	response.OK(c, res)
+}
