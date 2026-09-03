@@ -1,0 +1,12 @@
+apiVersion: ai.example.com/v1
+kind: AIService
+metadata:
+  name: qwen-service
+  namespace: default
+spec:
+  model: qwen3-8b
+  replicas: 2
+  resources:
+    gpu: 0          # 如果本地没有 GPU 环境，设为 0 以防 Pod 报 Unschedulable
+    memory: 512Mi
+  image: nginx:latest # 本地测试可用轻量镜像模拟服务响应
