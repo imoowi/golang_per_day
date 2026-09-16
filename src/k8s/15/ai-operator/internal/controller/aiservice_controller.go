@@ -149,6 +149,16 @@ func (r *AIServiceReconciler) buildDeployment(aiService *aiv1.AIService) (*appsv
 		replicas = *aiService.Spec.Replicas
 	}
 
+	image := aiService.Spec.Image
+	if image == "" {
+		image = "nginx:latest"
+	}
+
+	memory := aiService.Spec.Resources.Memory
+	if memory == "" {
+		memory = "512Mi"
+	}
+
 	labels := map[string]string{
 		"app":        aiService.Name,
 		"controller": "aiservice-operator",
@@ -156,7 +166,7 @@ func (r *AIServiceReconciler) buildDeployment(aiService *aiv1.AIService) (*appsv
 
 	// 将业务 Spec 中的 GPU 数量映射为 nvidia.com/gpu 资源限制
 	resourceLimits := corev1.ResourceList{
-		corev1.ResourceMemory: resource.MustParse(aiService.Spec.Resources.Memory),
+		corev1.ResourceMemory: resource.MustParse(memory),
 	}
 	if aiService.Spec.Resources.GPU > 0 {
 		resourceLimits[corev1.ResourceName("nvidia.com/gpu")] = resource.MustParse(strconv.Itoa(int(aiService.Spec.Resources.GPU)))
@@ -181,7 +191,7 @@ func (r *AIServiceReconciler) buildDeployment(aiService *aiv1.AIService) (*appsv
 					Containers: []corev1.Container{
 						{
 							Name:  "model-server",
-							Image: aiService.Spec.Image,
+							Image: image,
 							Args: []string{
 								"--model", aiService.Spec.Model,
 							},
